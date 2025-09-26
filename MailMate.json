@@ -1,0 +1,406 @@
+{
+  "name": "MailMate",
+  "nodes": [
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        288
+      ],
+      "id": "ca0b342f-e622-4567-a901-419ed4bd800c",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Be30iH1yTZimf9zV",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an email processing assistant that extracts key information from HTML emails.\n\nTask: Return ONLY valid JSON defined schema in Output Parser.\n\nEmail Details:\n- ID: {{ $('Microsoft Outlook Trigger').item.json.id }}\n- From: {{$('Microsoft Outlook Trigger').item.json.from.emailAddress.name }} ({{ $('Microsoft Outlook Trigger').item.json.from.emailAddress.address }})\n- Subject: {{ $('Microsoft Outlook Trigger').item.json.subject }}\n- Body: {{ $json.body_clean }}\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -464,
+        -128
+      ],
+      "id": "6f1508c8-97f0-4532-afdf-a3d34474c8c8",
+      "name": "AI Email Processor",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "192cXRgr6wgSWoeKl51FDhI6ZSXZCdWiNIWJVNjrzTDA",
+          "mode": "list",
+          "cachedResultName": "Info",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/192cXRgr6wgSWoeKl51FDhI6ZSXZCdWiNIWJVNjrzTDA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/192cXRgr6wgSWoeKl51FDhI6ZSXZCdWiNIWJVNjrzTDA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.output.id }}",
+            "Deadline": "={{ $json.output.Deadline }}",
+            "Link": "={{ $json.output.Link }}",
+            "subject": "={{ $json.output.subject }}",
+            "sender": "={{ $json.output.sender }}",
+            "other important info": "={{ $json.output.other_important_info }}",
+            "Summary": "={{ $json.output.Summary }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sender",
+              "displayName": "sender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Link",
+              "displayName": "Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Deadline",
+              "displayName": "Deadline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "other important info",
+              "displayName": "other important info",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "5593f6a0-3a43-4c2b-bb79-c1a612524a25",
+      "name": "Save To Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -64,
+        -128
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "MpgoMHGT1hNbBeHc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "messageId": "={{ $json.id }}",
+        "updateFields": {
+          "isRead": true
+        }
+      },
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        -128
+      ],
+      "id": "768267a5-1813-4536-8457-b867d3e9df5d",
+      "name": "Mark Email as Read",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "VH0QG5qCqMEjXfym",
+          "name": "Microsoft Outlook account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "output": "fields",
+        "fields": [
+          "from",
+          "subject",
+          "webLink",
+          "receivedDateTime",
+          "sender",
+          "isRead",
+          "body"
+        ],
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.microsoftOutlookTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1312,
+        -112
+      ],
+      "id": "e29ca596-b514-4c55-919a-2fde353c4173",
+      "name": "Microsoft Outlook Trigger",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "VH0QG5qCqMEjXfym",
+          "name": "Microsoft Outlook account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "> ⚡ **Note**  \n \n> - 🎯 **Purpose of this IF node:** To **pass only emails from our college internship team**.  \n> - 📝 For showcasing, a **different sender name** is used, but in actual use only internship team mails will continue through the **true** branch.  \n> - 🚫 All other emails will go to **false**, which will remain unconnected.  \n",
+        "height": 400,
+        "width": 320,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        -336
+      ],
+      "typeVersion": 1,
+      "id": "8300c1fe-9b69-4c2b-8f41-eebd95237b53",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"id\": {\n      \"type\": \"string\",\n      \"description\": \"Unique email identifier from Outlook\"\n    },\n    \"sender\": {\n      \"type\": \"string\",\n      \"description\": \"Sender name and email in the format 'Name (email)'\"\n    },\n    \"subject\": {\n      \"type\": \"string\",\n      \"description\": \"Subject line of the email\"\n    },\n    \"Summary\": {\n      \"type\": \"string\",\n      \"description\": \"summary of the email body\"\n    },\n    \"Link\": {\n      \"type\": \"string\",\n      \"description\": \"Relevant links only, separated by newlines. Use empty string if none.\"\n    },\n    \"Deadline\": {\n      \"type\": \"string\",\n      \"description\": \"Deadline mentioned in the email body. Use empty string if none.\"\n    },\n    \"other_important_info\": {\n      \"type\": \"string\",\n      \"description\": \"Other important info such as venue, eligibility criteria and contact details. Use empty string if none.\"\n    }\n  },\n  \"required\": [\"id\", \"sender\", \"subject\", \"Summary\"]\n}\n",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -304,
+        96
+      ],
+      "id": "e336693f-a9bc-40ed-8382-df63ac06d827",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get HTML content from input\nconst html = $input.first().json.body.content;\n\n// Function to extract text from HTML while removing unnecessary spaces\nfunction extractTextFromHTML(html) {\n    // Remove script and style tags\n    let cleanedHTML = html\n        .replace(/<script[\\s\\S]*?>[\\s\\S]*?<\\/script>/gi, '') // Remove script tags\n        .replace(/<style[\\s\\S]*?>[\\s\\S]*?<\\/style>/gi, '')   // Remove style tags\n        .replace(/<\\/?[^>]+(>|$)/g, '')                      // Remove all other HTML tags\n        .replace(/\\s+/g, ' ')                                // Replace multiple spaces with single space\n        .trim();                                             // Trim leading and trailing spaces\n    return cleanedHTML;\n}\n\n// Extract text from the input HTML\nconst extractedText = extractTextFromHTML(html);\n\n// Optional: log for debugging\nconsole.log(extractedText);\n\n// Return the extracted text as output\nreturn { body_clean: extractedText };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -688,
+        -128
+      ],
+      "id": "503b45b5-2ce9-476f-9334-d4d7ba1a51c2",
+      "name": "Code",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "19205ea4-c49d-4daa-8b07-9541e20c85d4",
+              "leftValue": "={{ $json.sender.emailAddress.name }}",
+              "rightValue": "HARDIK AGARWAL",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1024,
+        -112
+      ],
+      "id": "34abf002-3160-497e-b26a-009c98bf54c3",
+      "name": "If"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Email Processor",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Email Processor": {
+      "main": [
+        [
+          {
+            "node": "Save To Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save To Sheet": {
+      "main": [
+        [
+          {
+            "node": "Mark Email as Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Microsoft Outlook Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Email Processor",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "AI Email Processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c81fb431-442a-4ee2-baa7-16cc1a79a96f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c91c7a74519710922ab18117f0555c6d32040e640f59ed18b9fb3c1a6104fafc"
+  },
+  "id": "cqBSlIpzqkilGqyx",
+  "tags": []
+}
